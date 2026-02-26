@@ -1,42 +1,68 @@
 let isExtensionEnabled = true;
 let observer = null;
 
-// Request current state from background
+// Initialize state
 async function initializeState() {
   const response = await browser.runtime.sendMessage({ type: "GET_STATE" });
   isExtensionEnabled = response.isEnabled;
+
   if (isExtensionEnabled) {
-    removeShorts();
+    hideShorts();
     startObserving();
   }
 }
 
-// Remove Shorts videos
-function removeShorts() {
+// Hide Shorts videos (more precise targeting)
+function hideShorts() {
   if (!isExtensionEnabled) return;
 
-  const videoLinks = document.querySelectorAll("a");
+  const videoRenderers = document.querySelectorAll(
+    "ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer",
+  );
 
-  videoLinks.forEach((link) => {
-    if (link.href && link.href.includes("/shorts/")) {
-      const container =
-        link.closest("ytd-rich-item-renderer") ||
-        link.closest("ytd-video-renderer") ||
-        link.closest("ytd-grid-video-renderer");
+  videoRenderers.forEach((renderer) => {
+    const link = renderer.querySelector("a#thumbnail");
 
-      if (container) {
-        container.remove();
-      }
+    if (link && link.href && link.href.includes("/shorts/")) {
+      renderer.style.display = "none";
+    }
+  });
+
+  // Handle Shorts shelf explicitly
+  const shelves = document.querySelectorAll("ytd-rich-section-renderer");
+
+  shelves.forEach((shelf) => {
+    const title = shelf.innerText;
+    if (title && title.toLowerCase().includes("shorts")) {
+      shelf.style.display = "none";
     }
   });
 }
 
-// Start MutationObserver
+// Restore hidden elements when disabled
+function restoreShorts() {
+  const hiddenElements = document.querySelectorAll(
+    "ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer, ytd-rich-section-renderer",
+  );
+
+  hiddenElements.forEach((element) => {
+    element.style.display = "";
+  });
+}
+
+// Start observing DOM changes (with throttling)
 function startObserving() {
   if (observer) return;
 
+  let timeout = null;
+
   observer = new MutationObserver(() => {
-    removeShorts();
+    if (timeout) return;
+
+    timeout = setTimeout(() => {
+      hideShorts();
+      timeout = null;
+    }, 300);
   });
 
   observer.observe(document.body, {
@@ -45,7 +71,7 @@ function startObserving() {
   });
 }
 
-// Stop observing when disabled
+// Stop observing
 function stopObserving() {
   if (observer) {
     observer.disconnect();
@@ -59,14 +85,14 @@ browser.runtime.onMessage.addListener((message) => {
     isExtensionEnabled = message.value;
 
     if (isExtensionEnabled) {
-      removeShorts();
+      hideShorts();
       startObserving();
     } else {
       stopObserving();
-      location.reload(); // Restore removed content cleanly
+      restoreShorts();
     }
   }
 });
 
-// Initialize
+// Initialize extension
 initializeState();
