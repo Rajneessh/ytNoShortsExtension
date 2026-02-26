@@ -1,0 +1,34 @@
+{
+  "manifest_version": 2,
+  "name": "ytNoShortsExtension",
+  "version": "1.0.0",
+  
+  "permissions": [
+    "activeTab",
+    "storage",
+    "*://www.youtube.com/*"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": ["*://www.youtube.com/*"],
+      "js": ["content/contentScript.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "background": {
+    "scripts": ["background/background.js"],
+    "persistent": false
+  },
+
+  "browser_action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "ytNoShortsExtension"
+  },
+
+  "icons": {
+    "48": "../assets/icons/icon48.png",
+    "96": "../assets/icons/icon96.png"
+  }
+}
