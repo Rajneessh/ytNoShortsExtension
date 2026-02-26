@@ -1,22 +1,32 @@
-// Default state
+// Cross-browser API
+const extensionAPI = typeof browser !== "undefined" ? browser : chrome;
+
 const DEFAULT_STATE = {
-  isEnabled: true,
+  isEnabled: true
 };
 
-browser.runtime.onInstalled.addListener(() => {
-  browser.storage.local.get("isEnabled").then((result) => {
+// Initialize default state on install
+extensionAPI.runtime.onInstalled.addListener(() => {
+  extensionAPI.storage.local.get(["isEnabled"], (result) => {
     if (result.isEnabled === undefined) {
-      browser.storage.local.set(DEFAULT_STATE);
+      extensionAPI.storage.local.set(DEFAULT_STATE);
     }
   });
 });
 
-browser.runtime.onMessage.addListener((message, sender) => {
+// Handle messages
+extensionAPI.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "GET_STATE") {
-    return browser.storage.local.get("isEnabled");
+    extensionAPI.storage.local.get(["isEnabled"], (result) => {
+      sendResponse(result);
+    });
+    return true; // Required for async response
   }
 
   if (message.type === "SET_STATE") {
-    return browser.storage.local.set({ isEnabled: message.value });
+    extensionAPI.storage.local.set({ isEnabled: message.value }, () => {
+      sendResponse({ success: true });
+    });
+    return true;
   }
 });
