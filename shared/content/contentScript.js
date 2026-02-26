@@ -4,6 +4,10 @@ const extensionAPI = typeof browser !== "undefined" ? browser : chrome;
 let isExtensionEnabled = true;
 let observer = null;
 
+/* ===============================
+   INITIALIZATION
+================================ */
+
 function initializeState() {
   extensionAPI.runtime.sendMessage({ type: "GET_STATE" }, (response) => {
     isExtensionEnabled = response?.isEnabled ?? true;
@@ -16,6 +20,10 @@ function initializeState() {
   });
 }
 
+/* ===============================
+   CORE ORCHESTRATOR
+================================ */
+
 function applyShortsRemoval() {
   if (!isExtensionEnabled) return;
 
@@ -25,9 +33,13 @@ function applyShortsRemoval() {
   hideShortsChips();
 }
 
+/* ===============================
+   VIDEO DETECTION
+================================ */
+
 function hideShortsVideos() {
   const renderers = document.querySelectorAll(
-    "ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer",
+    "ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer"
   );
 
   renderers.forEach((renderer) => {
@@ -45,6 +57,10 @@ function hideShortsVideos() {
   });
 }
 
+/* ===============================
+   SHELVES
+================================ */
+
 function hideShortsShelves() {
   const shelves = document.querySelectorAll("ytd-rich-section-renderer");
 
@@ -54,6 +70,10 @@ function hideShortsShelves() {
     }
   });
 }
+
+/* ===============================
+   SIDEBAR NAVIGATION
+================================ */
 
 function hideShortsNavigation() {
   const navLinks = document.querySelectorAll("ytd-guide-entry-renderer");
@@ -65,6 +85,10 @@ function hideShortsNavigation() {
   });
 }
 
+/* ===============================
+   FILTER CHIPS (Search/Home)
+================================ */
+
 function hideShortsChips() {
   const chips = document.querySelectorAll("yt-chip-cloud-chip-renderer");
 
@@ -75,15 +99,23 @@ function hideShortsChips() {
   });
 }
 
+/* ===============================
+   BLOCK DIRECT NAVIGATION
+================================ */
+
 function blockShortsNavigation() {
   if (window.location.pathname.startsWith("/shorts")) {
     window.location.href = "/";
   }
 }
 
+/* ===============================
+   RESTORE
+================================ */
+
 function restoreAll() {
   const elements = document.querySelectorAll(
-    "ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer, ytd-rich-section-renderer, ytd-guide-entry-renderer, yt-chip-cloud-chip-renderer",
+    "ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer, ytd-rich-section-renderer, ytd-guide-entry-renderer, yt-chip-cloud-chip-renderer"
   );
 
   elements.forEach((el) => {
@@ -91,47 +123,57 @@ function restoreAll() {
   });
 }
 
-function startObserving() {
-  if (observer) return;
+/* ===============================
+   OBSERVER
+================================ */
 
-  let timeout = null;
+/* ===============================
+   NAVIGATION ENGINE (MAX PERFORMANCE)
+================================ */
 
-  observer = new MutationObserver(() => {
-    if (timeout) return;
+let currentUrl = location.href;
 
-    timeout = setTimeout(() => {
-      applyShortsRemoval();
-      blockShortsNavigation();
-      timeout = null;
-    }, 250);
-  });
+function onNavigationChange() {
+  if (!isExtensionEnabled) return;
 
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-  });
+  applyShortsRemoval();
+  blockShortsNavigation();
 }
 
-function stopObserving() {
-  if (observer) {
-    observer.disconnect();
-    observer = null;
-  }
-}
-
-extensionAPI.runtime.onMessage.addListener((message) => {
-  if (message.type === "SET_STATE") {
-    isExtensionEnabled = message.value;
-
-    if (isExtensionEnabled) {
-      applyShortsRemoval();
-      startObserving();
-      blockShortsNavigation();
-    } else {
-      stopObserving();
-      restoreAll();
+/* Detect URL changes (SPA safe) */
+function detectUrlChange() {
+  setInterval(() => {
+    if (location.href !== currentUrl) {
+      currentUrl = location.href;
+      onNavigationChange();
     }
-  }
+  }, 300);
+}
+
+/* Hook into YouTube navigation events */
+window.addEventListener("yt-navigate-finish", () => {
+  onNavigationChange();
 });
 
+/* Override History API (extra safety) */
+(function(history) {
+  const pushState = history.pushState;
+  const replaceState = history.replaceState;
+
+  history.pushState = function () {
+    pushState.apply(history, arguments);
+    onNavigationChange();
+  };
+
+  history.replaceState = function () {
+    replaceState.apply(history, arguments);
+    onNavigationChange();
+  };
+})(window.history);
+
+/* ===============================
+   START
+================================ */
+
 initializeState();
+detectUrlChange();
