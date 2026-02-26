@@ -105,11 +105,13 @@ No build tools required.
 
 # Development Evolution
 
-Phase 1 – Basic Removal  
+### Phase 1 – Basic Removal
+
 The initial version scanned for links containing `/shorts/` and removed elements using a global MutationObserver.  
 This worked but was inefficient.
 
-Phase 2 – Modular Suppression Engine  
+### Phase 2 – Modular Suppression Engine
+
 Logic was split into:
 
 - Video detection
@@ -120,7 +122,8 @@ Logic was split into:
 
 This improved maintainability and readability.
 
-Phase 3 – Aggressive Mode Expansion  
+### Phase 3 – Aggressive Mode Expansion
+
 Shorts suppression expanded to cover:
 
 - Sidebar navigation entries
@@ -131,7 +134,8 @@ Shorts suppression expanded to cover:
 
 This created a universal Shorts suppression layer.
 
-Phase 4 – Performance Optimization  
+### Phase 4 – Performance Optimization
+
 The heavy MutationObserver was removed.
 Replaced with:
 
@@ -142,7 +146,8 @@ Replaced with:
 
 This significantly reduced DOM overhead.
 
-Phase 5 – Cross-Browser Migration  
+### Phase 5 – Cross-Browser Migration
+
 The project was upgraded to support:
 
 - Firefox (Manifest V2)
