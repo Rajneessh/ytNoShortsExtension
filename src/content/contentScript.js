@@ -1,18 +1,22 @@
+// Cross-browser API
+const extensionAPI = typeof browser !== "undefined" ? browser : chrome;
+
 let isExtensionEnabled = true;
 let observer = null;
 
 // Initialize state
-async function initializeState() {
-  const response = await browser.runtime.sendMessage({ type: "GET_STATE" });
-  isExtensionEnabled = response.isEnabled;
+function initializeState() {
+  extensionAPI.runtime.sendMessage({ type: "GET_STATE" }, (response) => {
+    isExtensionEnabled = response?.isEnabled ?? true;
 
-  if (isExtensionEnabled) {
-    hideShorts();
-    startObserving();
-  }
+    if (isExtensionEnabled) {
+      hideShorts();
+      startObserving();
+    }
+  });
 }
 
-// Hide Shorts videos (more precise targeting)
+// Hide Shorts videos
 function hideShorts() {
   if (!isExtensionEnabled) return;
 
@@ -28,7 +32,7 @@ function hideShorts() {
     }
   });
 
-  // Handle Shorts shelf explicitly
+  // Hide Shorts shelves
   const shelves = document.querySelectorAll("ytd-rich-section-renderer");
 
   shelves.forEach((shelf) => {
@@ -39,18 +43,18 @@ function hideShorts() {
   });
 }
 
-// Restore hidden elements when disabled
+// Restore hidden elements
 function restoreShorts() {
-  const hiddenElements = document.querySelectorAll(
+  const allElements = document.querySelectorAll(
     "ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer, ytd-rich-section-renderer",
   );
 
-  hiddenElements.forEach((element) => {
+  allElements.forEach((element) => {
     element.style.display = "";
   });
 }
 
-// Start observing DOM changes (with throttling)
+// Start observing DOM changes
 function startObserving() {
   if (observer) return;
 
@@ -80,7 +84,7 @@ function stopObserving() {
 }
 
 // Listen for toggle updates
-browser.runtime.onMessage.addListener((message) => {
+extensionAPI.runtime.onMessage.addListener((message) => {
   if (message.type === "SET_STATE") {
     isExtensionEnabled = message.value;
 
@@ -94,5 +98,5 @@ browser.runtime.onMessage.addListener((message) => {
   }
 });
 
-// Initialize extensionn
+// Initialize
 initializeState();
