@@ -4,27 +4,23 @@
   "version": "1.5.0",
   "description": "Removes YouTube Shorts from recommended sections with toggle control.",
 
-  "permissions": [
-    "activeTab",
-    "storage",
-    "*://www.youtube.com/*"
-  ],
+  "permissions": ["activeTab", "storage", "*://www.youtube.com/*"],
 
   "content_scripts": [
     {
       "matches": ["*://www.youtube.com/*"],
-      "js": ["../shared/content/contentScript.js"],
+      "js": ["../content/contentScript.js"],
       "run_at": "document_idle"
     }
   ],
 
   "background": {
-    "scripts": ["../shared/background/background.js"],
+    "scripts": ["../background/background.js"],
     "persistent": false
   },
 
   "browser_action": {
-    "default_popup": "../shared/popup/popup.html",
+    "default_popup": "../popup/popup.html",
     "default_title": "ytNoShortsExtension"
   },
 
