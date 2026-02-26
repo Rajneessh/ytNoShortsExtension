@@ -94,5 +94,5 @@ browser.runtime.onMessage.addListener((message) => {
   }
 });
 
-// Initialize extension
+// Initialize extensionn
 initializeState();
