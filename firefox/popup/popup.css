@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 :root {
   --bg-color: #0f0f0f;
   --card-bg: #1a1a1a;
@@ -108,24 +107,4 @@ input:checked + .slider:before {
   font-size: 9px;
   color: #444;
   margin: 0;
-=======
-.toggleRow {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: red;
-}
-
-.version {
-  margin-top: 10px;
-  font-size: 10px;
-  opacity: 0.5;
->>>>>>> 60db7a029297cdc868717508fb1c4c9ebb5e57f8
 }

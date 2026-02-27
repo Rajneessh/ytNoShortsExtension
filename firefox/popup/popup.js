@@ -3,10 +3,10 @@ const statusText = document.getElementById("statusText");
 const creditText = document.getElementById("creditText");
 
 // Set the credit text with today's date
-const today = new Date().toLocaleDateString("en-US", {
-  month: "long",
-  day: "numeric",
-  year: "numeric",
+const today = new Date().toLocaleDateString('en-US', { 
+  month: 'long', 
+  day: 'numeric', 
+  year: 'numeric' 
 });
 creditText.textContent = `Built by Rajneesh Rajan on ${today}`;
 
@@ -21,13 +21,10 @@ browser.runtime.sendMessage({ type: "GET_STATE" }, (response) => {
 toggle.addEventListener("change", () => {
   const isEnabled = toggle.checked;
   browser.runtime.sendMessage({ type: "SET_STATE", value: isEnabled });
-
+  
   browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
     if (tabs[0]) {
-      browser.tabs.sendMessage(tabs[0].id, {
-        type: "UPDATE_STATE",
-        value: isEnabled,
-      });
+      browser.tabs.sendMessage(tabs[0].id, { type: "UPDATE_STATE", value: isEnabled });
     }
   });
 
@@ -35,24 +32,10 @@ toggle.addEventListener("change", () => {
 });
 
 function updateUI(isEnabled) {
-  statusText.textContent = isEnabled
-    ? "SHORTS ARE BLOCKED"
-    : "SHORTS ARE VISIBLE";
-  statusText.style.color = isEnabled
-    ? "var(--accent-green)"
-    : "var(--accent-red)";
-
+  statusText.textContent = isEnabled ? "SHORTS ARE BLOCKED" : "SHORTS ARE VISIBLE";
+  statusText.style.color = isEnabled ? "var(--accent-green)" : "var(--accent-red)";
+  
   // Update the extension icon dynamically
-  const iconPath = isEnabled
-    ? "../assets/icons/icon48.png"
-    : "../assets/icons/icon96.png";
+  const iconPath = isEnabled ? "../assets/icons/icon48.png" : "../assets/icons/icon96.png";
   browser.browserAction.setIcon({ path: iconPath });
-}
-function updateStatusText(isEnabled) {
-  statusText.textContent = isEnabled
-    ? "Aggressive Mode Active"
-    : "Shorts Visible";
-
-  const dot = document.getElementById("statusDot");
-  dot.style.backgroundColor = isEnabled ? "#00ff66" : "#ff0000";
 }
