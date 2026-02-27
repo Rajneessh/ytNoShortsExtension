@@ -2,24 +2,42 @@
   "manifest_version": 2,
   "name": "ytNoShortsExtension",
   "version": "1.5.0",
+<<<<<<< HEAD
   "description": "Removes YouTube Shorts from recommended sections.",
   "permissions": ["storage", "*://www.youtube.com/*"],
+=======
+  "description": "Removes YouTube Shorts from recommended sections with toggle control.",
+
+  "permissions": ["activeTab", "storage", "*://www.youtube.com/*"],
+>>>>>>> 60db7a029297cdc868717508fb1c4c9ebb5e57f8
 
   "content_scripts": [
     {
       "matches": ["*://www.youtube.com/*"],
+<<<<<<< HEAD
       "js": ["content/contentScript.js"],
+=======
+      "js": ["../content/contentScript.js"],
+>>>>>>> 60db7a029297cdc868717508fb1c4c9ebb5e57f8
       "run_at": "document_idle"
     }
   ],
 
   "background": {
+<<<<<<< HEAD
     "scripts": ["background/background.js"],
+=======
+    "scripts": ["../background/background.js"],
+>>>>>>> 60db7a029297cdc868717508fb1c4c9ebb5e57f8
     "persistent": false
   },
 
   "browser_action": {
+<<<<<<< HEAD
     "default_popup": "popup/popup.html",
+=======
+    "default_popup": "../popup/popup.html",
+>>>>>>> 60db7a029297cdc868717508fb1c4c9ebb5e57f8
     "default_title": "ytNoShortsExtension"
   },
 

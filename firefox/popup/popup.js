@@ -48,3 +48,11 @@ function updateUI(isEnabled) {
     : "../assets/icons/icon96.png";
   browser.browserAction.setIcon({ path: iconPath });
 }
+function updateStatusText(isEnabled) {
+  statusText.textContent = isEnabled
+    ? "Aggressive Mode Active"
+    : "Shorts Visible";
+
+  const dot = document.getElementById("statusDot");
+  dot.style.backgroundColor = isEnabled ? "#00ff66" : "#ff0000";
+}
